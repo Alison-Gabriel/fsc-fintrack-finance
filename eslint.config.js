@@ -24,10 +24,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      "react-refresh/only-export-components": "off",
     },
   },
   eslintConfigPrettier
