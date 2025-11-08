@@ -24,6 +24,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           className="bg-card"
         />
         <Button
+          type="button"
           variant="ghost"
           className="absolute bottom-0 right-0 top-0 my-auto mr-1 size-8 text-muted-foreground"
           onClick={togglePasswordVisibility}

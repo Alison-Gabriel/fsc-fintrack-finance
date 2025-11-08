@@ -70,7 +70,7 @@ const SignupPage = () => {
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSignupSubmit)}>
-          <Card className="w-[500px]">
+          <Card className="w-[450px]">
             <CardHeader>
               <CardTitle className="font-bold">Crie a sua conta</CardTitle>
               <CardDescription>Insira seus dados abaixo.</CardDescription>
@@ -178,7 +178,7 @@ const SignupPage = () => {
         </form>
       </Form>
 
-      <div className="flex items-center justify-center gap-1">
+      <div className="flex items-center justify-center gap-1 text-sm">
         <p className="text-center opacity-50">Já possui uma conta?</p>
         <Button variant="link" className="p-0" asChild>
           <Link to="/login">Faça login.</Link>
