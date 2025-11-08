@@ -1,4 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import clsx from 'clsx'
+import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
+import { z } from 'zod'
 
 import PasswordInput from '@/components/password-input'
 import { Button } from '@/components/ui/button'
@@ -11,41 +15,168 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 
+const signupSchema = z.object({
+  name: z.string().trim().min(1, {
+    message: 'O nome é obrigatório.',
+  }),
+  email: z
+    .string()
+    .email({
+      message: 'O e-mail digitado é inválido.',
+    })
+    .min(1, {
+      message: 'O e-mail é obrigatório.',
+    }),
+  password: z.string().trim().min(6, {
+    message: 'A senha deve ter no mínimo 6 caracteres.',
+  }),
+  passwordConfirmation: z.string().trim().min(6, {
+    message: 'A confirmação da senha é obrigatória.',
+  }),
+  terms: z.boolean().refine((fieldValue) => fieldValue === true, {
+    message: 'Você precisa aceitar os termos.',
+  }),
+})
+
+type SignupSchema = z.infer<typeof signupSchema>
+
 const SignupPage = () => {
+  const form = useForm({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      passwordConfirmation: '',
+      terms: false,
+    },
+  })
+
+  const handleSignupSubmit = (data: SignupSchema) => {
+    console.log(data)
+  }
+
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
-      <Card className="w-[500px]">
-        <CardHeader>
-          <CardTitle className="font-bold">Crie a sua conta</CardTitle>
-          <CardDescription>Insira seus dados abaixo.</CardDescription>
-        </CardHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSignupSubmit)}>
+          <Card className="w-[500px]">
+            <CardHeader>
+              <CardTitle className="font-bold">Crie a sua conta</CardTitle>
+              <CardDescription>Insira seus dados abaixo.</CardDescription>
+            </CardHeader>
 
-        <CardContent className="space-y-3">
-          <Input placeholder="Digite seu nome" />
-          <Input placeholder="Digite seu e-mail" />
-          <PasswordInput placeholder="Digite sua senha" />
-          <PasswordInput placeholder="Confirme sua senha" />
+            <CardContent className="space-y-3">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="bg-card"
+                        placeholder="Digite seu nome"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className="flex gap-x-2">
-            <Checkbox id="terms" />
-            <label
-              htmlFor="terms"
-              className="text-xs font-medium text-muted-foreground opacity-75"
-            >
-              Ao clicar em “Criar conta”, você aceita{' '}
-              <a href="#" className="text-primary underline underline-offset-2">
-                nosso termo de uso e política de privacidade.
-              </a>
-            </label>
-          </div>
-        </CardContent>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="bg-card"
+                        placeholder="Digite seu e-mail"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <CardFooter>
-          <Button className="w-full">Criar conta</Button>
-        </CardFooter>
-      </Card>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormControl>
+                      <PasswordInput
+                        {...field}
+                        placeholder="Digite sua senha"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="passwordConfirmation"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormControl>
+                      <PasswordInput
+                        {...field}
+                        placeholder="Confirme sua senha"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="terms"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className={clsx({
+                            'border-destructive': form.formState.errors.terms,
+                          })}
+                        />
+                      </FormControl>
+
+                      <FormLabel className="text-xs leading-none text-muted-foreground opacity-75">
+                        Ao clicar em “Criar conta”, você aceita{' '}
+                        <a href="#" className="text-primary underline">
+                          nosso termo de uso e política de privacidade.
+                        </a>
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+
+            <CardFooter>
+              <Button className="w-full">Criar conta</Button>
+            </CardFooter>
+          </Card>
+        </form>
+      </Form>
 
       <div className="flex items-center justify-center gap-1">
         <p className="text-center opacity-50">Já possui uma conta?</p>
