@@ -26,8 +26,11 @@ import {
 import { Input } from '@/components/ui/input'
 
 const signupSchema = z.object({
-  name: z.string().trim().min(1, {
+  firstName: z.string().trim().min(1, {
     message: 'O nome é obrigatório.',
+  }),
+  lastName: z.string().trim().min(1, {
+    message: 'O sobrenome é obrigatório',
   }),
   email: z
     .string()
@@ -54,7 +57,8 @@ const SignupPage = () => {
   const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
       passwordConfirmation: '',
@@ -79,7 +83,7 @@ const SignupPage = () => {
             <CardContent className="space-y-3">
               <FormField
                 control={form.control}
-                name="name"
+                name="firstName"
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormControl>
@@ -87,6 +91,23 @@ const SignupPage = () => {
                         {...field}
                         className="bg-card"
                         placeholder="Digite seu nome"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="bg-card"
+                        placeholder="Digite seu sobrenome"
                       />
                     </FormControl>
                     <FormMessage />
