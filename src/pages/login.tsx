@@ -56,7 +56,7 @@ const LoginPage = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleLoginSubmit)}>
           <Card className="w-[450px]">
-            <CardHeader>
+            <CardHeader className="text-center">
               <CardTitle className="font-bold">Entre na sua conta</CardTitle>
               <CardDescription>Insira seus dados abaixo.</CardDescription>
             </CardHeader>
