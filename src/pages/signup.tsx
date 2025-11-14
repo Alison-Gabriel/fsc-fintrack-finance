@@ -1,11 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
-import { toast } from 'sonner'
-import { z } from 'zod'
 
 import PasswordInput from '@/components/password-input'
 import { Button } from '@/components/ui/button'
@@ -27,71 +24,11 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { api } from '@/lib/axios'
-
-const signupSchema = z
-  .object({
-    firstName: z.string().trim().min(1, {
-      message: 'O nome é obrigatório.',
-    }),
-    lastName: z.string().trim().min(1, {
-      message: 'O sobrenome é obrigatório',
-    }),
-    email: z
-      .string()
-      .email({
-        message: 'O e-mail digitado é inválido.',
-      })
-      .min(1, {
-        message: 'O e-mail é obrigatório.',
-      }),
-    password: z.string().trim().min(6, {
-      message: 'A senha deve ter no mínimo 6 caracteres.',
-    }),
-    passwordConfirmation: z.string().trim().min(6, {
-      message: 'A confirmação da senha é obrigatória.',
-    }),
-    terms: z.boolean().refine((fieldValue) => fieldValue === true, {
-      message: 'Você precisa aceitar os termos.',
-    }),
-  })
-  .refine((fields) => fields.password === fields.passwordConfirmation, {
-    message: 'As senhas não coincidem.',
-    path: ['passwordConfirmation'],
-  })
-
-type SignupSchema = z.infer<typeof signupSchema>
-
-interface UserResponseData {
-  id: string
-  first_name: string
-  last_name: string
-  email: string
-  password: string
-}
-
-interface UserWithTokensData extends UserResponseData {
-  tokens: {
-    accessToken: string
-    refreshToken: string
-  }
-}
+import { AuthContext } from '@/context/auth'
+import { SignupSchema, signupSchema } from '@/schemas/signup'
 
 const SignupPage = () => {
-  const [user, setUser] = useState<UserResponseData | null>(null)
-
-  const signupMutation = useMutation({
-    mutationKey: ['signup'],
-    mutationFn: async (variables: SignupSchema) => {
-      const response = await api.post<UserWithTokensData>('/users', {
-        first_name: variables.firstName,
-        last_name: variables.lastName,
-        email: variables.email,
-        password: variables.password,
-      })
-      return response.data
-    },
-  })
+  const { signup, user } = useContext(AuthContext)
 
   const form = useForm({
     resolver: zodResolver(signupSchema),
@@ -105,46 +42,7 @@ const SignupPage = () => {
     },
   })
 
-  useEffect(() => {
-    const verifyUserLocalStorageTokens = async () => {
-      const accessToken = localStorage.getItem('accessToken')
-      const refreshToken = localStorage.getItem('refreshToken')
-
-      if (!accessToken && !refreshToken) return
-
-      try {
-        const user = await api.get<UserResponseData>('/users/me', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-        setUser(user.data)
-      } catch (error) {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        console.log((error as Error).message)
-      }
-    }
-    verifyUserLocalStorageTokens()
-  }, [])
-
-  const handleSignupSubmit = (data: SignupSchema) => {
-    signupMutation.mutate(data, {
-      onSuccess: (createdUser) => {
-        const accessToken = createdUser.tokens.accessToken
-        const refreshToken = createdUser.tokens.refreshToken
-
-        setUser(createdUser)
-        localStorage.setItem('accessToken', accessToken)
-        localStorage.setItem('refreshToken', refreshToken)
-
-        toast.success('Conta criada com sucesso!')
-      },
-      onError: () => {
-        toast.error('Erro ao criar conta.')
-      },
-    })
-  }
+  const handleSignupSubmit = (data: SignupSchema) => signup(data)
 
   if (user) {
     return <h1>Olá, {user?.first_name}!</h1>
