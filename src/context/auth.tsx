@@ -1,5 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
-import { createContext, ReactNode, useEffect, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/axios'
@@ -117,3 +123,5 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     </AuthContext.Provider>
   )
 }
+
+export const useAuthContext = () => useContext(AuthContext)

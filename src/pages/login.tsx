@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 
@@ -21,11 +20,11 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { AuthContext } from '@/context/auth'
+import { useAuthContext } from '@/context/auth'
 import { LoginSchema, loginSchema } from '@/schemas/login'
 
 const LoginPage = () => {
-  const { login, user } = useContext(AuthContext)
+  const { login, user } = useAuthContext()
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
