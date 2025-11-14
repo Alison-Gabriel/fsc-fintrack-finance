@@ -1,11 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
@@ -13,11 +7,9 @@ import { setLocalStorageTokens } from '@/helpers/set-local-storage-tokens'
 import { protectedApi, publicApi } from '@/lib/axios'
 import { LoginSchema } from '@/schemas/login'
 import { SignupSchema } from '@/schemas/signup'
+import { UserService } from '@/services/user'
 import { UserData, UserWithTokensData } from '@/types/user'
-import {
-  LOCAL_STORAGE_ACCESS_TOKEN_KEY,
-  LOCAL_STORAGE_REFRESH_TOKEN_KEY,
-} from '@/variables/local-storage-tokens'
+import { LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOCAL_STORAGE_REFRESH_TOKEN_KEY } from '@/variables/local-storage-tokens'
 
 interface AuthContextData {
   user: UserData | null
@@ -40,16 +32,8 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const signupMutation = useMutation({
     mutationKey: ['signup'],
     mutationFn: async (variables: SignupSchema) => {
-      const { data: createdUser } = await publicApi.post<UserWithTokensData>(
-        '/users',
-        {
-          first_name: variables.firstName,
-          last_name: variables.lastName,
-          email: variables.email,
-          password: variables.password,
-        }
-      )
-      return createdUser
+      const userService = new UserService()
+      return userService.signup(variables)
     },
   })
 
@@ -70,9 +54,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
       try {
         const accessToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY)
-        const refreshToken = localStorage.getItem(
-          LOCAL_STORAGE_REFRESH_TOKEN_KEY
-        )
+        const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY)
 
         if (!accessToken && !refreshToken) return
 
@@ -98,9 +80,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         toast.success('Conta criada com sucesso!')
       },
       onError: () => {
-        toast.error(
-          'Erro ao criar conta, verifique seus dados e tente novamente.'
-        )
+        toast.error('Erro ao criar conta, verifique seus dados e tente novamente.')
       },
     })
   }
@@ -125,9 +105,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider
-      value={{ user, isTokensBeingValidated, signup, login, signout }}
-    >
+    <AuthContext.Provider value={{ user, isTokensBeingValidated, signup, login, signout }}>
       {children}
     </AuthContext.Provider>
   )

@@ -2,10 +2,7 @@ import axios, { InternalAxiosRequestConfig } from 'axios'
 
 import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
 import { setLocalStorageTokens } from '@/helpers/set-local-storage-tokens'
-import {
-  LOCAL_STORAGE_ACCESS_TOKEN_KEY,
-  LOCAL_STORAGE_REFRESH_TOKEN_KEY,
-} from '@/variables/local-storage-tokens'
+import { LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOCAL_STORAGE_REFRESH_TOKEN_KEY } from '@/variables/local-storage-tokens'
 
 export const protectedApi = axios.create({
   baseURL: 'https://fullstackclub-finance-dashboard-api.onrender.com/api',
@@ -42,15 +39,9 @@ protectedApi.interceptors.response.use(
 
       const isUnauthorizedErrorResponse = error.response?.status === 401
       const isNotRequestAlreadyBeenRetried = !request._retry
-      const isNotRefreshTokenRequestRetry = !request.url?.includes(
-        '/users/refresh-token'
-      )
+      const isNotRefreshTokenRequestRetry = !request.url?.includes('/users/refresh-token')
 
-      if (
-        isUnauthorizedErrorResponse &&
-        isNotRequestAlreadyBeenRetried &&
-        isNotRefreshTokenRequestRetry
-      ) {
+      if (isUnauthorizedErrorResponse && isNotRequestAlreadyBeenRetried && isNotRefreshTokenRequestRetry) {
         request._retry = true
 
         try {
