@@ -1,5 +1,6 @@
 import { protectedApi, publicApi } from '@/lib/axios'
-import { UserData, UserWithTokensData } from '@/types/user'
+import { UserResponse, UserResponseWithTokens } from '@/types/api'
+import { UserData, UserDataWithTokens } from '@/types/user'
 
 interface SignupInputData {
   firstName: string
@@ -14,37 +15,52 @@ interface LoginInputData {
 }
 
 interface UserServiceProps {
-  signup: ({
-    firstName,
-    lastName,
-    email,
-    password,
-  }: SignupInputData) => Promise<UserWithTokensData>
-  login: ({ email, password }: LoginInputData) => Promise<UserData>
+  signup: (data: SignupInputData) => Promise<UserDataWithTokens>
+  login: (data: LoginInputData) => Promise<UserDataWithTokens>
   me: () => Promise<UserData>
 }
 
 export class UserService implements UserServiceProps {
   async signup({ firstName, lastName, email, password }: SignupInputData) {
-    const response = await publicApi.post<UserWithTokensData>('/users', {
+    const { data: createdUser } = await publicApi.post<UserResponseWithTokens>('/users', {
       first_name: firstName,
       last_name: lastName,
-      email: email,
-      password: password,
-    })
-    return response.data
-  }
-
-  async login({ email, password }: LoginInputData) {
-    const response = await publicApi.post<UserWithTokensData>('/users/login', {
       email,
       password,
     })
-    return response.data
+
+    return {
+      id: createdUser.id,
+      email: createdUser.email,
+      firstName: createdUser.first_name,
+      lastName: createdUser.last_name,
+      tokens: createdUser.tokens,
+    }
+  }
+
+  async login({ email, password }: LoginInputData) {
+    const { data: loggedUser } = await publicApi.post<UserResponseWithTokens>('/users/login', {
+      email,
+      password,
+    })
+
+    return {
+      id: loggedUser.id,
+      firstName: loggedUser.first_name,
+      lastName: loggedUser.last_name,
+      email: loggedUser.email,
+      tokens: loggedUser.tokens,
+    }
   }
 
   async me() {
-    const response = await protectedApi.get<UserData>('/users/me')
-    return response.data
+    const { data: user } = await protectedApi.get<UserResponse>('/users/me')
+
+    return {
+      id: user.id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      email: user.email,
+    }
   }
 }

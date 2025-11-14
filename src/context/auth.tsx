@@ -1,11 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
@@ -14,16 +8,13 @@ import { LoginSchema } from '@/schemas/login'
 import { SignupSchema } from '@/schemas/signup'
 import { UserService } from '@/services/user'
 import { UserData } from '@/types/user'
-import {
-  LOCAL_STORAGE_ACCESS_TOKEN_KEY,
-  LOCAL_STORAGE_REFRESH_TOKEN_KEY,
-} from '@/variables/local-storage-tokens'
+import { LOCAL_STORAGE_ACCESS_TOKEN_KEY, LOCAL_STORAGE_REFRESH_TOKEN_KEY } from '@/variables/local-storage-tokens'
 
 interface AuthContextData {
   user: UserData | null
   isTokensBeingValidated: boolean
   login: (data: LoginSchema) => Promise<void>
-  signout: () => void
+  logout: () => void
   signup: (data: SignupSchema) => Promise<void>
 }
 
@@ -59,9 +50,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
       try {
         const accessToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY)
-        const refreshToken = localStorage.getItem(
-          LOCAL_STORAGE_REFRESH_TOKEN_KEY
-        )
+        const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY)
 
         if (!accessToken && !refreshToken) return
 
@@ -89,14 +78,12 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         toast.success('Conta criada com sucesso!')
       },
       onError: () => {
-        toast.error(
-          'Erro ao criar conta, verifique seus dados e tente novamente.'
-        )
+        toast.error('Erro ao criar conta, verifique seus dados e tente novamente.')
       },
     })
   }
 
-  const signout = async () => {
+  const logout = async () => {
     setUser(null)
     removeLocalStorageTokens()
   }
@@ -116,9 +103,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider
-      value={{ user, isTokensBeingValidated, signup, login, signout }}
-    >
+    <AuthContext.Provider value={{ user, isTokensBeingValidated, signup, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

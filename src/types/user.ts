@@ -1,12 +1,11 @@
 export interface UserData {
   id: string
-  first_name: string
-  last_name: string
+  firstName: string
+  lastName: string
   email: string
-  password: string
 }
 
-export interface UserWithTokensData extends UserData {
+export interface UserDataWithTokens extends UserData {
   tokens: {
     accessToken: string
     refreshToken: string
