@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
@@ -62,12 +62,15 @@ const signupSchema = z
 
 type SignupSchema = z.infer<typeof signupSchema>
 
-interface ApiResponse {
+interface UserData {
   id: string
   first_name: string
   last_name: string
   email: string
   password: string
+}
+
+interface UserWithTokensData extends UserData {
   tokens: {
     accessToken: string
     refreshToken: string
@@ -75,12 +78,12 @@ interface ApiResponse {
 }
 
 const SignupPage = () => {
-  const [user, setUser] = useState<ApiResponse | null>(null)
+  const [user, setUser] = useState<UserData | null>(null)
 
   const signupMutation = useMutation({
     mutationKey: ['signup'],
     mutationFn: async (variables: SignupSchema) => {
-      const response = await api.post<ApiResponse>('/users', {
+      const response = await api.post<UserWithTokensData>('/users', {
         first_name: variables.firstName,
         last_name: variables.lastName,
         email: variables.email,
@@ -101,6 +104,30 @@ const SignupPage = () => {
       terms: false,
     },
   })
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const accessToken = localStorage.getItem('accessToken')
+      const refreshToken = localStorage.getItem('refreshToken')
+
+      if (!accessToken && !refreshToken) return
+
+      try {
+        const response = await api.get<UserData>('/users/me', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        setUser(response.data)
+      } catch (error) {
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        console.log((error as Error).message)
+      }
+    }
+
+    getUserData()
+  }, [])
 
   const handleSignupSubmit = (data: SignupSchema) => {
     signupMutation.mutate(data, {
