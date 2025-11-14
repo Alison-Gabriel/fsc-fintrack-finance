@@ -27,7 +27,7 @@ const Header = () => {
 
         <div>
           <DropdownMenu>
-            <DropdownMenuTrigger className="outline-none">
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" className="bg-card">
                 <Avatar className="size-6">
                   <AvatarFallback className="text-xs">
