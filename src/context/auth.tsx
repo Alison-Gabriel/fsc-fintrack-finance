@@ -80,7 +80,6 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         setUser(user.data)
       } catch (error) {
         setUser(null)
-        removeLocalStorageTokens()
         console.log((error as Error).message)
       } finally {
         setIsTokensBeingValidated(false)
