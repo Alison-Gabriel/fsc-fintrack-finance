@@ -23,6 +23,7 @@ interface AuthContextData {
   user: UserData | null
   isTokensBeingValidated: boolean
   login: (data: LoginSchema) => Promise<void>
+  signout: () => void
   signup: (data: SignupSchema) => Promise<void>
 }
 
@@ -109,6 +110,11 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     })
   }
 
+  const signout = async () => {
+    setUser(null)
+    removeLocalStorageTokens()
+  }
+
   const login = async (data: LoginSchema) => {
     loginMutation.mutate(data, {
       onSuccess: (loggedUser) => {
@@ -125,7 +131,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isTokensBeingValidated, signup, login }}
+      value={{ user, isTokensBeingValidated, signup, login, signout }}
     >
       {children}
     </AuthContext.Provider>
