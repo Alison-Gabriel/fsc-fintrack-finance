@@ -1,19 +1,44 @@
 import { publicApi } from '@/lib/axios'
-import { SignupSchema } from '@/schemas/signup'
-import { UserWithTokensData } from '@/types/user'
+import { UserData, UserWithTokensData } from '@/types/user'
+
+interface SignupInputData {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+}
+
+interface LoginInputData {
+  email: string
+  password: string
+}
 
 interface UserServiceProps {
-  signup: (data: SignupSchema) => Promise<UserWithTokensData>
+  signup: ({
+    firstName,
+    lastName,
+    email,
+    password,
+  }: SignupInputData) => Promise<UserWithTokensData>
+  login: ({ email, password }: LoginInputData) => Promise<UserData>
 }
 
 export class UserService implements UserServiceProps {
-  async signup(data: SignupSchema) {
-    const { data: createdUser } = await publicApi.post<UserWithTokensData>('/users', {
-      first_name: data.firstName,
-      last_name: data.lastName,
-      email: data.email,
-      password: data.password,
+  async signup({ firstName, lastName, email, password }: SignupInputData) {
+    const response = await publicApi.post<UserWithTokensData>('/users', {
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      password: password,
     })
-    return createdUser
+    return response.data
+  }
+
+  async login({ email, password }: LoginInputData) {
+    const response = await publicApi.post<UserWithTokensData>('/users/login', {
+      email,
+      password,
+    })
+    return response.data
   }
 }
