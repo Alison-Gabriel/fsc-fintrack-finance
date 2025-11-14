@@ -1,6 +1,6 @@
 import { protectedApi, publicApi } from '@/lib/axios'
 import { UserResponse, UserResponseWithTokens } from '@/types/api'
-import { UserData, UserDataWithTokens } from '@/types/user'
+import { UserBalanceData, UserData, UserDataWithTokens } from '@/types/user'
 
 interface SignupInputData {
   firstName: string
@@ -14,9 +14,15 @@ interface LoginInputData {
   password: string
 }
 
+interface GetBalanceInputData {
+  from: string
+  to: string
+}
+
 interface UserServiceProps {
   signup: (data: SignupInputData) => Promise<UserDataWithTokens>
   login: (data: LoginInputData) => Promise<UserDataWithTokens>
+  getBalance: (data: GetBalanceInputData) => Promise<UserBalanceData>
   me: () => Promise<UserData>
 }
 
@@ -62,5 +68,15 @@ export class UserService implements UserServiceProps {
       lastName: user.last_name,
       email: user.email,
     }
+  }
+
+  async getBalance({ from, to }: GetBalanceInputData) {
+    const queryParams = new URLSearchParams()
+
+    queryParams.set('from', from)
+    queryParams.set('to', to)
+
+    const { data: balance } = await protectedApi.get<UserBalanceData>(`/users/me/balance?${queryParams.toString()}`)
+    return balance
   }
 }

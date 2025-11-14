@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { addMonths, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale/pt-BR'
 import { CalendarIcon } from 'lucide-react'
@@ -6,12 +7,17 @@ import { type DateRange } from 'react-day-picker'
 import { useNavigate, useSearchParams } from 'react-router'
 
 import { Calendar } from '@/components/ui/calendar'
+import { useAuthContext } from '@/context/auth'
 import { formatDateToQueryParam } from '@/helpers/format-date-to-query-param'
 
-import { Button } from './button'
-import { Popover, PopoverContent, PopoverTrigger } from './popover'
+import { Button } from './ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
-export const DatePickerWithRange = () => {
+export const DateSelector = () => {
+  const queryClient = useQueryClient()
+
+  const { user } = useAuthContext()
+
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
@@ -30,8 +36,11 @@ export const DatePickerWithRange = () => {
       queryParams.set('to', formatDateToQueryParam(dateRange.to))
 
       navigate(`/?${queryParams.toString()}`)
+      queryClient.invalidateQueries({
+        queryKey: ['get-balance', user?.id],
+      })
     }
-  }, [dateRange, navigate])
+  }, [dateRange, navigate, queryClient, user?.id])
 
   return (
     <Popover>
