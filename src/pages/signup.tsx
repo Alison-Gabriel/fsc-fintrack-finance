@@ -1,7 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import PasswordInput from '@/components/password-input'
@@ -24,6 +27,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { api } from '@/lib/axios'
 
 const signupSchema = z.object({
   firstName: z.string().trim().min(1, {
@@ -53,7 +57,34 @@ const signupSchema = z.object({
 
 type SignupSchema = z.infer<typeof signupSchema>
 
+interface ApiResponse {
+  id: string
+  first_name: string
+  last_name: string
+  email: string
+  password: string
+  tokens: {
+    accessToken: string
+    refreshToken: string
+  }
+}
+
 const SignupPage = () => {
+  const [user, setUser] = useState<ApiResponse | null>(null)
+
+  const signupMutation = useMutation({
+    mutationKey: ['signup'],
+    mutationFn: async (variables: SignupSchema) => {
+      const response = await api.post<ApiResponse>('/users', {
+        first_name: variables.firstName,
+        last_name: variables.lastName,
+        email: variables.email,
+        password: variables.password,
+      })
+      return response.data
+    },
+  })
+
   const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -67,7 +98,25 @@ const SignupPage = () => {
   })
 
   const handleSignupSubmit = (data: SignupSchema) => {
-    console.log(data)
+    signupMutation.mutate(data, {
+      onSuccess: (createdUser) => {
+        const accessToken = createdUser.tokens.accessToken
+        const refreshToken = createdUser.tokens.refreshToken
+
+        setUser(createdUser)
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', refreshToken)
+
+        toast.success('Conta criada com sucesso!')
+      },
+      onError: () => {
+        toast.error('Erro ao criar conta.')
+      },
+    })
+  }
+
+  if (user) {
+    return <h1>Olá, {user?.first_name}!</h1>
   }
 
   return (
