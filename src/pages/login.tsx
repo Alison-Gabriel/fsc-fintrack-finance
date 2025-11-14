@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router'
+import { Link, Navigate } from 'react-router'
 
 import PasswordInput from '@/components/password-input'
 import { Button } from '@/components/ui/button'
@@ -24,7 +24,7 @@ import { useAuthContext } from '@/context/auth'
 import { LoginSchema, loginSchema } from '@/schemas/login'
 
 const LoginPage = () => {
-  const { login, user } = useAuthContext()
+  const { login, user, isTokensBeingValidated } = useAuthContext()
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -34,16 +34,17 @@ const LoginPage = () => {
     },
   })
 
-  const handleLoginSubmit = (data: LoginSchema) => login(data)
-
-  if (user) {
-    return <h1>Olá, {user.first_name}!</h1>
+  const handleLogin = (data: LoginSchema) => {
+    login(data)
   }
+
+  if (isTokensBeingValidated) return null
+  if (user) return <Navigate to="/" />
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleLoginSubmit)}>
+        <form onSubmit={form.handleSubmit(handleLogin)}>
           <Card className="w-[450px]">
             <CardHeader className="text-center">
               <CardTitle className="font-bold">Entre na sua conta</CardTitle>

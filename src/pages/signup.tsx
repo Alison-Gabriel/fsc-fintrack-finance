@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import clsx from 'clsx'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router'
+import { Link, Navigate } from 'react-router'
 
 import PasswordInput from '@/components/password-input'
 import { Button } from '@/components/ui/button'
@@ -27,7 +27,7 @@ import { useAuthContext } from '@/context/auth'
 import { SignupSchema, signupSchema } from '@/schemas/signup'
 
 const SignupPage = () => {
-  const { signup, user } = useAuthContext()
+  const { signup, user, isTokensBeingValidated } = useAuthContext()
 
   const form = useForm({
     resolver: zodResolver(signupSchema),
@@ -41,16 +41,17 @@ const SignupPage = () => {
     },
   })
 
-  const handleSignupSubmit = (data: SignupSchema) => signup(data)
-
-  if (user) {
-    return <h1>Olá, {user?.first_name}!</h1>
+  const handleSignup = (data: SignupSchema) => {
+    signup(data)
   }
+
+  if (isTokensBeingValidated) return null
+  if (user) <Navigate to="/" replace />
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-3">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSignupSubmit)}>
+        <form onSubmit={form.handleSubmit(handleSignup)}>
           <Card className="w-[450px]">
             <CardHeader className="text-center">
               <CardTitle className="font-bold">Crie a sua conta</CardTitle>

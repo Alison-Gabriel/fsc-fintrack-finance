@@ -21,6 +21,7 @@ import {
 
 interface AuthContextData {
   user: UserData | null
+  isTokensBeingValidated: boolean
   login: (data: LoginSchema) => Promise<void>
   signup: (data: SignupSchema) => Promise<void>
 }
@@ -33,6 +34,7 @@ interface AuthContextProviderProps {
 
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const [user, setUser] = useState<UserData | null>(null)
+  const [isTokensBeingValidated, setIsTokensBeingValidated] = useState(true)
 
   const signupMutation = useMutation({
     mutationKey: ['signup'],
@@ -63,12 +65,16 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
   useEffect(() => {
     const validateLocalStorageTokens = async () => {
-      const accessToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY)
-      const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY)
-
-      if (!accessToken && !refreshToken) return
+      setIsTokensBeingValidated(true)
 
       try {
+        const accessToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY)
+        const refreshToken = localStorage.getItem(
+          LOCAL_STORAGE_REFRESH_TOKEN_KEY
+        )
+
+        if (!accessToken && !refreshToken) return
+
         const user = await api.get<UserData>('/users/me', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -76,10 +82,14 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         })
         setUser(user.data)
       } catch (error) {
+        setUser(null)
         removeLocalStorageTokens()
         console.log((error as Error).message)
+      } finally {
+        setIsTokensBeingValidated(false)
       }
     }
+
     validateLocalStorageTokens()
   }, [])
 
@@ -114,7 +124,9 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, signup, login }}>
+    <AuthContext.Provider
+      value={{ user, isTokensBeingValidated, signup, login }}
+    >
       {children}
     </AuthContext.Provider>
   )
