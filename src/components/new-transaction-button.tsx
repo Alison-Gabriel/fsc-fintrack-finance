@@ -1,8 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PiggyBankIcon, PlusIcon, TrendingDownIcon, TrendingUpIcon } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Loader2Icon, PiggyBankIcon, PlusIcon, TrendingDownIcon, TrendingUpIcon } from 'lucide-react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { NumericFormat } from 'react-number-format'
+import { toast } from 'sonner'
 import z from 'zod'
+
+import { useAuthContext } from '@/context/auth'
+import { TransactionService } from '@/services/transaction'
 
 import { Button } from './ui/button'
 import { DatePicker } from './ui/date-picker'
@@ -46,6 +52,30 @@ const transactionSchema = z.object({
 type TransactionSchema = z.infer<typeof transactionSchema>
 
 const NewTransactionButton = () => {
+  const queryClient = useQueryClient()
+
+  const { user } = useAuthContext()
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  const { mutate: createTransaction, isPending: isCreatingTransaction } = useMutation({
+    mutationKey: ['new-transaction'],
+    mutationFn: async (variables: TransactionSchema) => {
+      const transactionService = new TransactionService()
+      return transactionService.create({
+        name: variables.name,
+        date: variables.date,
+        amount: variables.amount,
+        type: variables.type,
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['balance', user?.id],
+      })
+    },
+  })
+
   const form = useForm<TransactionSchema>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
@@ -58,11 +88,19 @@ const NewTransactionButton = () => {
   })
 
   const handleSubmitTransaction = (data: TransactionSchema) => {
-    console.log(data)
+    createTransaction(data, {
+      onSuccess: () => {
+        toast.success('Transação criada com sucesso!')
+        setIsDialogOpen(false)
+      },
+      onError: () => {
+        toast.error('Erro ao criar transação, tente novamente.')
+      },
+    })
   }
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button>
           Nova transação <PlusIcon />
@@ -178,12 +216,13 @@ const NewTransactionButton = () => {
 
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="reset" variant="secondary" className="flex-1">
+                <Button type="reset" variant="secondary" className="flex-1" disabled={isCreatingTransaction}>
                   Cancelar
                 </Button>
               </DialogClose>
 
-              <Button type="submit" variant="default" className="flex-1">
+              <Button type="submit" variant="default" className="flex-1" disabled={isCreatingTransaction}>
+                {isCreatingTransaction && <Loader2Icon className="animate-spin" />}
                 Adicionar
               </Button>
             </DialogFooter>

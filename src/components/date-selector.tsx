@@ -37,7 +37,7 @@ export const DateSelector = () => {
 
       navigate(`/?${queryParams.toString()}`)
       queryClient.invalidateQueries({
-        queryKey: ['get-balance', user?.id],
+        queryKey: ['balance', user?.id],
       })
     }
   }, [dateRange, navigate, queryClient, user?.id])

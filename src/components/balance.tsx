@@ -13,7 +13,7 @@ const Balance = () => {
   const { user } = useAuthContext()
 
   const { data: balance } = useQuery({
-    queryKey: ['get-balance', user?.id],
+    queryKey: ['balance', user?.id],
     queryFn: async () => {
       const userService = new UserService()
       return userService.getBalance({
