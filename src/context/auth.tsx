@@ -8,10 +8,16 @@ import {
 } from 'react'
 import { toast } from 'sonner'
 
+import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
+import { setLocalStorageTokens } from '@/helpers/set-local-storage-tokens'
 import { api } from '@/lib/axios'
 import { LoginSchema } from '@/schemas/login'
 import { SignupSchema } from '@/schemas/signup'
 import { UserData, UserWithTokensData } from '@/types/user'
+import {
+  LOCAL_STORAGE_ACCESS_TOKEN_KEY,
+  LOCAL_STORAGE_REFRESH_TOKEN_KEY,
+} from '@/variables/local-storage-tokens'
 
 interface AuthContextData {
   user: UserData | null
@@ -57,8 +63,8 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
   useEffect(() => {
     const validateLocalStorageTokens = async () => {
-      const accessToken = localStorage.getItem('accessToken')
-      const refreshToken = localStorage.getItem('refreshToken')
+      const accessToken = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN_KEY)
+      const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY)
 
       if (!accessToken && !refreshToken) return
 
@@ -70,8 +76,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         })
         setUser(user.data)
       } catch (error) {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
+        removeLocalStorageTokens()
         console.log((error as Error).message)
       }
     }
@@ -81,13 +86,8 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const signup = async (data: SignupSchema) => {
     signupMutation.mutate(data, {
       onSuccess: (createdUser) => {
-        const accessToken = createdUser.tokens.accessToken
-        const refreshToken = createdUser.tokens.refreshToken
-
         setUser(createdUser as UserData)
-
-        localStorage.setItem('accessToken', accessToken)
-        localStorage.setItem('refreshToken', refreshToken)
+        setLocalStorageTokens(createdUser.tokens)
 
         toast.success('Conta criada com sucesso!')
       },
@@ -102,12 +102,8 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const login = async (data: LoginSchema) => {
     loginMutation.mutate(data, {
       onSuccess: (loggedUser) => {
-        const accessToken = loggedUser.tokens.accessToken
-        const refreshToken = loggedUser.tokens.refreshToken
-
-        setUser(loggedUser)
-        localStorage.setItem('accessToken', accessToken)
-        localStorage.setItem('refreshToken', refreshToken)
+        setUser(loggedUser as UserData)
+        setLocalStorageTokens(loggedUser.tokens)
 
         toast.success('Login efetuado com sucesso!')
       },
