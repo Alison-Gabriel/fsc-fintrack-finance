@@ -1,4 +1,4 @@
-import { publicApi } from '@/lib/axios'
+import { protectedApi, publicApi } from '@/lib/axios'
 import { UserData, UserWithTokensData } from '@/types/user'
 
 interface SignupInputData {
@@ -21,6 +21,7 @@ interface UserServiceProps {
     password,
   }: SignupInputData) => Promise<UserWithTokensData>
   login: ({ email, password }: LoginInputData) => Promise<UserData>
+  me: () => Promise<UserData>
 }
 
 export class UserService implements UserServiceProps {
@@ -39,6 +40,11 @@ export class UserService implements UserServiceProps {
       email,
       password,
     })
+    return response.data
+  }
+
+  async me() {
+    const response = await protectedApi.get<UserData>('/users/me')
     return response.data
   }
 }

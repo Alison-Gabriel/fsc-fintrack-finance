@@ -10,7 +10,6 @@ import { toast } from 'sonner'
 
 import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
 import { setLocalStorageTokens } from '@/helpers/set-local-storage-tokens'
-import { protectedApi } from '@/lib/axios'
 import { LoginSchema } from '@/schemas/login'
 import { SignupSchema } from '@/schemas/signup'
 import { UserService } from '@/services/user'
@@ -66,8 +65,10 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
         if (!accessToken && !refreshToken) return
 
-        const user = await protectedApi.get<UserData>('/users/me')
-        setUser(user.data)
+        const userService = new UserService()
+        const user = await userService.me()
+
+        setUser(user)
       } catch (error) {
         setUser(null)
         console.log((error as Error).message)
