@@ -62,7 +62,7 @@ const signupSchema = z
 
 type SignupSchema = z.infer<typeof signupSchema>
 
-interface UserData {
+interface UserResponseData {
   id: string
   first_name: string
   last_name: string
@@ -70,7 +70,7 @@ interface UserData {
   password: string
 }
 
-interface UserWithTokensData extends UserData {
+interface UserWithTokensData extends UserResponseData {
   tokens: {
     accessToken: string
     refreshToken: string
@@ -78,7 +78,7 @@ interface UserWithTokensData extends UserData {
 }
 
 const SignupPage = () => {
-  const [user, setUser] = useState<UserData | null>(null)
+  const [user, setUser] = useState<UserResponseData | null>(null)
 
   const signupMutation = useMutation({
     mutationKey: ['signup'],
@@ -106,27 +106,26 @@ const SignupPage = () => {
   })
 
   useEffect(() => {
-    const getUserData = async () => {
+    const verifyUserLocalStorageTokens = async () => {
       const accessToken = localStorage.getItem('accessToken')
       const refreshToken = localStorage.getItem('refreshToken')
 
       if (!accessToken && !refreshToken) return
 
       try {
-        const response = await api.get<UserData>('/users/me', {
+        const user = await api.get<UserResponseData>('/users/me', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         })
-        setUser(response.data)
+        setUser(user.data)
       } catch (error) {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
         console.log((error as Error).message)
       }
     }
-
-    getUserData()
+    verifyUserLocalStorageTokens()
   }, [])
 
   const handleSignupSubmit = (data: SignupSchema) => {
