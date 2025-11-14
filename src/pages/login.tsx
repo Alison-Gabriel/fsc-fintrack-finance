@@ -1,10 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
-import { toast } from 'sonner'
-import { z } from 'zod'
 
 import PasswordInput from '@/components/password-input'
 import { Button } from '@/components/ui/button'
@@ -24,52 +21,11 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { api } from '@/lib/axios'
-
-const loginSchema = z.object({
-  email: z
-    .string()
-    .email({
-      message: 'O e-mail digitado é inválido.',
-    })
-    .min(1, {
-      message: 'O e-mail é obrigatório.',
-    }),
-  password: z.string().trim().min(6, {
-    message: 'A senha deve ter no mínimo 6 caracteres.',
-  }),
-})
-
-type LoginSchema = z.infer<typeof loginSchema>
-
-interface UserResponseData {
-  id: string
-  first_name: string
-  last_name: string
-  email: string
-  password: string
-}
-
-interface UserWithTokensData extends UserResponseData {
-  tokens: {
-    accessToken: string
-    refreshToken: string
-  }
-}
+import { AuthContext } from '@/context/auth'
+import { LoginSchema, loginSchema } from '@/schemas/login'
 
 const LoginPage = () => {
-  const [user, setUser] = useState<UserResponseData | null>(null)
-
-  const loginMutation = useMutation({
-    mutationKey: ['login'],
-    mutationFn: async (variables: LoginSchema) => {
-      const user = await api.post<UserWithTokensData>('/users/login', {
-        email: variables.email,
-        password: variables.password,
-      })
-      return user.data
-    },
-  })
+  const { login, user } = useContext(AuthContext)
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -79,44 +35,7 @@ const LoginPage = () => {
     },
   })
 
-  useEffect(() => {
-    const verifyTokens = async () => {
-      const accessToken = localStorage.getItem('accessToken')
-      const refreshToken = localStorage.getItem('refreshToken')
-
-      if (!accessToken && !refreshToken) return
-
-      try {
-        const user = await api.get<UserResponseData>('/users/me', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        })
-        setUser(user.data)
-      } catch (error) {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        console.log((error as Error).message)
-      }
-    }
-    verifyTokens()
-  }, [])
-
-  const handleLoginSubmit = (data: LoginSchema) => {
-    loginMutation.mutate(data, {
-      onSuccess: (loggedUser) => {
-        const accessToken = loggedUser.tokens.accessToken
-        const refreshToken = loggedUser.tokens.refreshToken
-
-        setUser(loggedUser)
-        localStorage.setItem('accessToken', accessToken)
-        localStorage.setItem('refreshToken', refreshToken)
-
-        toast.success('Login efetuado com sucesso!')
-      },
-      onError: () => {
-        toast.error('Erro ao fazer login.')
-      },
-    })
-  }
+  const handleLoginSubmit = (data: LoginSchema) => login(data)
 
   if (user) {
     return <h1>Olá, {user.first_name}!</h1>

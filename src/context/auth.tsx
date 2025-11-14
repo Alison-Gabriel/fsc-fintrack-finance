@@ -3,12 +3,13 @@ import { createContext, ReactNode, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { api } from '@/lib/axios'
+import { LoginSchema } from '@/schemas/login'
 import { SignupSchema } from '@/schemas/signup'
 import { UserData, UserWithTokensData } from '@/types/user'
 
 interface AuthContextData {
   user: UserData | null
-  login: () => Promise<void>
+  login: (data: LoginSchema) => Promise<void>
   signup: (data: SignupSchema) => Promise<void>
 }
 
@@ -34,6 +35,17 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         }
       )
       return createdUser
+    },
+  })
+
+  const loginMutation = useMutation({
+    mutationKey: ['login'],
+    mutationFn: async (variables: LoginSchema) => {
+      const user = await api.post<UserWithTokensData>('/users/login', {
+        email: variables.email,
+        password: variables.password,
+      })
+      return user.data
     },
   })
 
@@ -81,7 +93,23 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     })
   }
 
-  const login = async () => {}
+  const login = async (data: LoginSchema) => {
+    loginMutation.mutate(data, {
+      onSuccess: (loggedUser) => {
+        const accessToken = loggedUser.tokens.accessToken
+        const refreshToken = loggedUser.tokens.refreshToken
+
+        setUser(loggedUser)
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', refreshToken)
+
+        toast.success('Login efetuado com sucesso!')
+      },
+      onError: () => {
+        toast.error('Erro ao fazer login.')
+      },
+    })
+  }
 
   return (
     <AuthContext.Provider value={{ user, signup, login }}>
