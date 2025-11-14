@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 
 import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
 import { setLocalStorageTokens } from '@/helpers/set-local-storage-tokens'
-import { api } from '@/lib/axios'
+import { protectedApi, publicApi } from '@/lib/axios'
 import { LoginSchema } from '@/schemas/login'
 import { SignupSchema } from '@/schemas/signup'
 import { UserData, UserWithTokensData } from '@/types/user'
@@ -40,7 +40,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const signupMutation = useMutation({
     mutationKey: ['signup'],
     mutationFn: async (variables: SignupSchema) => {
-      const { data: createdUser } = await api.post<UserWithTokensData>(
+      const { data: createdUser } = await publicApi.post<UserWithTokensData>(
         '/users',
         {
           first_name: variables.firstName,
@@ -56,7 +56,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const loginMutation = useMutation({
     mutationKey: ['login'],
     mutationFn: async (variables: LoginSchema) => {
-      const user = await api.post<UserWithTokensData>('/users/login', {
+      const user = await publicApi.post<UserWithTokensData>('/users/login', {
         email: variables.email,
         password: variables.password,
       })
@@ -76,7 +76,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
         if (!accessToken && !refreshToken) return
 
-        const user = await api.get<UserData>('/users/me')
+        const user = await protectedApi.get<UserData>('/users/me')
         setUser(user.data)
       } catch (error) {
         setUser(null)
