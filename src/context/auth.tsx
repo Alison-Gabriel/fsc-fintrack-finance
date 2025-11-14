@@ -76,11 +76,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
         if (!accessToken && !refreshToken) return
 
-        const user = await api.get<UserData>('/users/me', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
+        const user = await api.get<UserData>('/users/me')
         setUser(user.data)
       } catch (error) {
         setUser(null)
