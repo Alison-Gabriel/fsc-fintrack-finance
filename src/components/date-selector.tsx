@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { addMonths, format } from 'date-fns'
+import { addMonths, format, isValid } from 'date-fns'
 import { ptBR } from 'date-fns/locale/pt-BR'
 import { CalendarIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -13,6 +13,31 @@ import { formatDateToQueryParam } from '@/helpers/format-date-to-query-param'
 import { Button } from './ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
+const getInitialDateRange = (searchParams: URLSearchParams) => {
+  const defaultRange: DateRange = {
+    from: new Date(),
+    to: addMonths(new Date(), 1),
+  }
+
+  const from = searchParams.get('from')
+  const to = searchParams.get('to')
+
+  if (!from || !to) {
+    return defaultRange
+  }
+
+  const isDatesInvalid = !isValid(new Date(from)) || !isValid(new Date(to))
+
+  if (isDatesInvalid) {
+    return defaultRange
+  }
+
+  return {
+    from: new Date(from + 'T00:00:00'),
+    to: new Date(to + 'T00:00:00'),
+  }
+}
+
 export const DateSelector = () => {
   const queryClient = useQueryClient()
 
@@ -21,14 +46,9 @@ export const DateSelector = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
-  const [dateRange, setDateRange] = useState<DateRange>({
-    from: searchParams.get('from')
-      ? new Date(searchParams.get('from') + 'T00:00:00')
-      : new Date(),
-    to: searchParams.get('to')
-      ? new Date(searchParams.get('to') + 'T00:00:00')
-      : addMonths(new Date(), 1),
-  })
+  const [dateRange, setDateRange] = useState<DateRange>(
+    getInitialDateRange(searchParams)
+  )
 
   useEffect(() => {
     if (!dateRange.from || !dateRange.to) return
