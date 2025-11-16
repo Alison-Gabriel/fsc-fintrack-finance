@@ -15,8 +15,8 @@ interface LoginInputData {
 }
 
 interface GetBalanceInputData {
-  from: string
-  to: string
+  from: string | null
+  to: string | null
 }
 
 interface UserServiceProps {
@@ -28,12 +28,15 @@ interface UserServiceProps {
 
 export class UserService implements UserServiceProps {
   async signup({ firstName, lastName, email, password }: SignupInputData) {
-    const { data: createdUser } = await publicApi.post<UserResponseWithTokens>('/users', {
-      first_name: firstName,
-      last_name: lastName,
-      email,
-      password,
-    })
+    const { data: createdUser } = await publicApi.post<UserResponseWithTokens>(
+      '/users',
+      {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
+      }
+    )
 
     return {
       id: createdUser.id,
@@ -45,10 +48,13 @@ export class UserService implements UserServiceProps {
   }
 
   async login({ email, password }: LoginInputData) {
-    const { data: loggedUser } = await publicApi.post<UserResponseWithTokens>('/users/login', {
-      email,
-      password,
-    })
+    const { data: loggedUser } = await publicApi.post<UserResponseWithTokens>(
+      '/users/login',
+      {
+        email,
+        password,
+      }
+    )
 
     return {
       id: loggedUser.id,
@@ -73,10 +79,12 @@ export class UserService implements UserServiceProps {
   async getBalance({ from, to }: GetBalanceInputData) {
     const queryParams = new URLSearchParams()
 
-    queryParams.set('from', from)
-    queryParams.set('to', to)
+    queryParams.set('from', String(from))
+    queryParams.set('to', String(to))
 
-    const { data: balance } = await protectedApi.get<UserBalanceData>(`/users/me/balance?${queryParams.toString()}`)
+    const { data: balance } = await protectedApi.get<UserBalanceData>(
+      `/users/me/balance?${queryParams.toString()}`
+    )
     return balance
   }
 }

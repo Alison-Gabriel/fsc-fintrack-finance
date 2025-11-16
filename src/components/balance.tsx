@@ -14,10 +14,10 @@ import BalanceItem from './balance-item'
 
 const Balance = () => {
   const [searchParams] = useSearchParams()
-  const from = String(searchParams.get('from'))
-  const to = String(searchParams.get('to'))
-
   const { user } = useAuthContext()
+
+  const from = searchParams.get('from')
+  const to = searchParams.get('to')
 
   const { data: balance } = useQuery({
     queryKey: ['balance', user?.id, from, to],
@@ -25,6 +25,8 @@ const Balance = () => {
       const userService = new UserService()
       return userService.getBalance({ from, to })
     },
+    staleTime: 1000 * 60 * 5,
+    enabled: Boolean(from) && Boolean(to) && Boolean(user?.id),
   })
 
   return (
