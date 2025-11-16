@@ -1,5 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { PiggyBankIcon, TrendingDownIcon, TrendingUpIcon, WalletIcon } from 'lucide-react'
+import {
+  PiggyBankIcon,
+  TrendingDownIcon,
+  TrendingUpIcon,
+  WalletIcon,
+} from 'lucide-react'
 import { useSearchParams } from 'react-router'
 
 import { useAuthContext } from '@/context/auth'
@@ -9,23 +14,26 @@ import BalanceItem from './balance-item'
 
 const Balance = () => {
   const [searchParams] = useSearchParams()
+  const from = String(searchParams.get('from'))
+  const to = String(searchParams.get('to'))
 
   const { user } = useAuthContext()
 
   const { data: balance } = useQuery({
-    queryKey: ['balance', user?.id],
+    queryKey: ['balance', user?.id, from, to],
     queryFn: async () => {
       const userService = new UserService()
-      return userService.getBalance({
-        from: String(searchParams.get('from')),
-        to: String(searchParams.get('to')),
-      })
+      return userService.getBalance({ from, to })
     },
   })
 
   return (
     <div className="col-span-2 grid grid-cols-2 gap-6 py-6">
-      <BalanceItem amount={Number(balance?.balance)} icon={<WalletIcon className="size-4" />} label="Saldo" />
+      <BalanceItem
+        amount={Number(balance?.balance)}
+        icon={<WalletIcon className="size-4" />}
+        label="Saldo"
+      />
       <BalanceItem
         amount={Number(balance?.earnings)}
         icon={<TrendingUpIcon className="size-4 text-primary-green" />}

@@ -22,8 +22,12 @@ export const DateSelector = () => {
   const navigate = useNavigate()
 
   const [dateRange, setDateRange] = useState<DateRange>({
-    from: searchParams.get('from') ? new Date(searchParams.get('from') + 'T00:00:00') : new Date(),
-    to: searchParams.get('to') ? new Date(searchParams.get('to') + 'T00:00:00') : addMonths(new Date(), 1),
+    from: searchParams.get('from')
+      ? new Date(searchParams.get('from') + 'T00:00:00')
+      : new Date(),
+    to: searchParams.get('to')
+      ? new Date(searchParams.get('to') + 'T00:00:00')
+      : addMonths(new Date(), 1),
   })
 
   useEffect(() => {
@@ -36,8 +40,14 @@ export const DateSelector = () => {
       queryParams.set('to', formatDateToQueryParam(dateRange.to))
 
       navigate(`/?${queryParams.toString()}`)
+
       queryClient.invalidateQueries({
-        queryKey: ['balance', user?.id],
+        queryKey: [
+          'balance',
+          user?.id,
+          formatDateToQueryParam(dateRange.from),
+          formatDateToQueryParam(dateRange.to),
+        ],
       })
     }
   }, [dateRange, navigate, queryClient, user?.id])
