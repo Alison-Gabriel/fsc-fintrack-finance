@@ -13,6 +13,10 @@ interface GetUserBalanceQueryKeyProps extends UseGetUserBalanceProps {
 }
 
 export const getUserBalanceQueryKey = ({ from, to, userId }: GetUserBalanceQueryKeyProps) => {
+  if (!from || !to) {
+    return ['balance', userId]
+  }
+
   return ['balance', userId, from, to]
 }
 
