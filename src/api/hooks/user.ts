@@ -2,8 +2,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { UserService } from '@/api/services/user'
 import { useAuthContext } from '@/context/auth'
-import { LoginSchema } from '@/forms/schemas/login'
-import { SignupSchema } from '@/forms/schemas/signup'
+import { LoginFormSchema } from '@/forms/schemas/user'
+import { SignupFormSchema } from '@/forms/schemas/user'
 
 interface UseGetUserBalanceProps {
   from?: string | null
@@ -41,7 +41,7 @@ export const getSignupMutationKey = () => ['signup']
 export const useSignup = () => {
   return useMutation({
     mutationKey: getSignupMutationKey(),
-    mutationFn: async (variables: SignupSchema) => {
+    mutationFn: async (variables: SignupFormSchema) => {
       const userService = new UserService()
       return userService.signup(variables)
     },
@@ -53,7 +53,7 @@ export const getLoginMutationKey = () => ['login']
 export const useLogin = () => {
   return useMutation({
     mutationKey: getLoginMutationKey(),
-    mutationFn: async (variables: LoginSchema) => {
+    mutationFn: async (variables: LoginFormSchema) => {
       const userService = new UserService()
       return userService.login(variables)
     },

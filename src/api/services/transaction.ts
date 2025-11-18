@@ -13,6 +13,7 @@ interface CreateTransactionInputData {
 
 interface TransactionApiResponse {
   id: string
+  date: Date
   user_id: string
   name: string
   type: TransactionType
@@ -21,6 +22,7 @@ interface TransactionApiResponse {
 
 interface Transaction {
   id: string
+  date: Date
   userId: string
   name: string
   type: TransactionType
@@ -28,8 +30,8 @@ interface Transaction {
 }
 
 interface GetAllTransactionsInputData {
-  from?: string
-  to?: string
+  from?: string | null
+  to?: string | null
 }
 
 interface TransactionServiceData {
@@ -51,6 +53,7 @@ export class TransactionService implements TransactionServiceData {
 
     return {
       id: createdTransaction.id,
+      date: createdTransaction.date,
       userId: createdTransaction.user_id,
       name: createdTransaction.name,
       type: createdTransaction.type,
@@ -68,6 +71,7 @@ export class TransactionService implements TransactionServiceData {
       transactions.map(async (transaction) => {
         return {
           id: transaction.id,
+          date: transaction.date,
           userId: transaction.user_id,
           name: transaction.name,
           type: transaction.type,

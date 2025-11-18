@@ -22,13 +22,16 @@ export const useCreateTransaction = () => {
       queryClient.invalidateQueries({
         queryKey: getUserBalanceQueryKey({ userId: user?.id }),
       })
+      queryClient.invalidateQueries({
+        queryKey: getTransactionsQueryKey({ userId: user?.id }),
+      })
     },
   })
 }
 
 interface UseGetTransactionsProps {
-  from?: string
-  to?: string
+  from?: string | null
+  to?: string | null
 }
 
 interface GetTransactionsQueryKeyProps extends UseGetTransactionsProps {
@@ -53,5 +56,6 @@ export const useGetTransactions = ({ from, to }: UseGetTransactionsProps) => {
       const transactions = await transactionService.getAll({ from, to })
       return transactions
     },
+    enabled: Boolean(from) && Boolean(to) && Boolean(user?.id),
   })
 }
