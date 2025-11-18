@@ -1,3 +1,5 @@
+import queryString from 'query-string'
+
 import { protectedApi } from '@/lib/axios'
 
 type TransactionType = 'EARNING' | 'EXPENSE' | 'INVESTMENT'
@@ -25,8 +27,14 @@ interface Transaction {
   amount: string
 }
 
+interface GetAllTransactionsInputData {
+  from: string
+  to: string
+}
+
 interface TransactionServiceData {
   create: (data: CreateTransactionInputData) => Promise<Transaction>
+  getAll: (data: GetAllTransactionsInputData) => Promise<Transaction[]>
 }
 
 export class TransactionService implements TransactionServiceData {
@@ -48,5 +56,24 @@ export class TransactionService implements TransactionServiceData {
       type: createdTransaction.type,
       amount: createdTransaction.amount,
     }
+  }
+
+  async getAll({ from, to }: GetAllTransactionsInputData) {
+    const query = queryString.stringify({ from, to })
+    const { data: transactions } = await protectedApi.get<TransactionApiResponse[]>(
+      `/transactions/me?${query}`
+    )
+
+    return Promise.all(
+      transactions.map(async (transaction) => {
+        return {
+          id: transaction.id,
+          userId: transaction.user_id,
+          name: transaction.name,
+          type: transaction.type,
+          amount: transaction.amount,
+        }
+      })
+    )
   }
 }
