@@ -1,6 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import clsx from 'clsx'
-import { useForm } from 'react-hook-form'
+import { Loader2Icon } from 'lucide-react'
 import { Link, Navigate } from 'react-router'
 
 import PasswordInput from '@/components/password-input'
@@ -24,25 +23,15 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useAuthContext } from '@/context/auth'
-import { SignupSchema, signupSchema } from '@/forms/schemas/signup'
+import { useSignupForm } from '@/forms/hooks/user'
+import { SignupFormSchema } from '@/forms/schemas/user'
 
 const SignupPage = () => {
-  const { signup, user, isTokensBeingValidated } = useAuthContext()
+  const { user, signup, isTokensBeingValidated } = useAuthContext()
+  const { form } = useSignupForm()
 
-  const form = useForm({
-    resolver: zodResolver(signupSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      passwordConfirmation: '',
-      terms: false,
-    },
-  })
-
-  const handleSignup = (data: SignupSchema) => {
-    signup(data)
+  const handleSignup = async (data: SignupFormSchema) => {
+    await signup(data)
   }
 
   if (isTokensBeingValidated) return null
@@ -153,7 +142,10 @@ const SignupPage = () => {
             </CardContent>
 
             <CardFooter>
-              <Button className="w-full">Criar conta</Button>
+              <Button disabled={form.formState.isSubmitting} className="w-full">
+                {form.formState.isSubmitting && <Loader2Icon className="animate-spin" />}
+                Criar conta
+              </Button>
             </CardFooter>
           </Card>
         </form>

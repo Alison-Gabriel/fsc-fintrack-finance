@@ -3,8 +3,8 @@ import { toast } from 'sonner'
 
 import { useLogin, useSignup } from '@/api/hooks/user'
 import { UserService } from '@/api/services/user'
-import { LoginSchema } from '@/forms/schemas/login'
-import { SignupSchema } from '@/forms/schemas/signup'
+import { LoginFormSchema } from '@/forms/schemas/user'
+import { SignupFormSchema } from '@/forms/schemas/user'
 import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
 import { setLocalStorageTokens } from '@/helpers/set-local-storage-tokens'
 import { UserData } from '@/types/user'
@@ -16,9 +16,9 @@ import {
 interface AuthContextData {
   user: UserData | null
   isTokensBeingValidated: boolean
-  login: (data: LoginSchema) => Promise<void>
+  login: (data: LoginFormSchema) => Promise<void>
   logout: () => void
-  signup: (data: SignupSchema) => Promise<void>
+  signup: (data: SignupFormSchema) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData)
@@ -59,37 +59,39 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     validateLocalStorageTokens()
   }, [])
 
-  const signup = async (data: SignupSchema) => {
-    signupMutation.mutate(data, {
-      onSuccess: (createdUser) => {
-        setUser(createdUser as UserData)
-        setLocalStorageTokens(createdUser.tokens)
+  const signup = async (data: SignupFormSchema) => {
+    try {
+      const createdUser = await signupMutation.mutateAsync(data)
 
-        toast.success('Conta criada com sucesso!')
-      },
-      onError: () => {
-        toast.error('Erro ao criar conta, verifique seus dados e tente novamente.')
-      },
-    })
+      setUser(createdUser as UserData)
+      setLocalStorageTokens(createdUser.tokens)
+
+      toast.success('Conta criada com sucesso!')
+    } catch (error) {
+      console.error((error as Error).message)
+
+      toast.error('Erro ao criar conta, verifique seus dados e tente novamente.')
+    }
   }
 
-  const logout = async () => {
+  const logout = () => {
     setUser(null)
     removeLocalStorageTokens()
   }
 
-  const login = async (data: LoginSchema) => {
-    loginMutation.mutate(data, {
-      onSuccess: (loggedUser) => {
-        setUser(loggedUser as UserData)
-        setLocalStorageTokens(loggedUser.tokens)
+  const login = async (data: LoginFormSchema) => {
+    try {
+      const loggedUser = await loginMutation.mutateAsync(data)
 
-        toast.success('Login efetuado com sucesso!')
-      },
-      onError: () => {
-        toast.error('Erro ao fazer login.')
-      },
-    })
+      setUser(loggedUser as UserData)
+      setLocalStorageTokens(loggedUser.tokens)
+
+      toast.success('Login feito com sucesso!')
+    } catch (error) {
+      console.error((error as Error).message)
+
+      toast.error('Erro ao fazer login, verifique seus dados e tente novamente.')
+    }
   }
 
   return (
