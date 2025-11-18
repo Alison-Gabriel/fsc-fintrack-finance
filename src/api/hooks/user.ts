@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { UserService } from '@/api/services/user'
 import { useAuthContext } from '@/context/auth'
+import { LoginSchema } from '@/schemas/login'
+import { SignupSchema } from '@/schemas/signup'
 
 interface UseGetUserBalanceProps {
   from?: string | null
@@ -31,5 +33,29 @@ export const useGetUserBalance = ({ from, to }: UseGetUserBalanceProps) => {
     },
     staleTime: 1000 * 60 * 5,
     enabled: Boolean(from) && Boolean(to) && Boolean(user?.id),
+  })
+}
+
+export const getSignupQueryKey = () => ['signup']
+
+export const useSignup = () => {
+  return useMutation({
+    mutationKey: getSignupQueryKey(),
+    mutationFn: async (variables: SignupSchema) => {
+      const userService = new UserService()
+      return userService.signup(variables)
+    },
+  })
+}
+
+export const getLoginQueryKey = () => ['login']
+
+export const useLogin = () => {
+  return useMutation({
+    mutationKey: getLoginQueryKey(),
+    mutationFn: async (variables: LoginSchema) => {
+      const userService = new UserService()
+      return userService.login(variables)
+    },
   })
 }
