@@ -36,11 +36,11 @@ export const useGetUserBalance = ({ from, to }: UseGetUserBalanceProps) => {
   })
 }
 
-export const getSignupQueryKey = () => ['signup']
+export const getSignupMutationKey = () => ['signup']
 
 export const useSignup = () => {
   return useMutation({
-    mutationKey: getSignupQueryKey(),
+    mutationKey: getSignupMutationKey(),
     mutationFn: async (variables: SignupSchema) => {
       const userService = new UserService()
       return userService.signup(variables)
@@ -48,11 +48,11 @@ export const useSignup = () => {
   })
 }
 
-export const getLoginQueryKey = () => ['login']
+export const getLoginMutationKey = () => ['login']
 
 export const useLogin = () => {
   return useMutation({
-    mutationKey: getLoginQueryKey(),
+    mutationKey: getLoginMutationKey(),
     mutationFn: async (variables: LoginSchema) => {
       const userService = new UserService()
       return userService.login(variables)

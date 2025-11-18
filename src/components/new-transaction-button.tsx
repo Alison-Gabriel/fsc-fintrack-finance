@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Loader2Icon,
   PiggyBankIcon,
@@ -11,11 +10,9 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { NumericFormat } from 'react-number-format'
 import { toast } from 'sonner'
-import z from 'zod'
 
-import { getUserBalanceQueryKey } from '@/api/hooks/user'
-import { TransactionService } from '@/api/services/transaction'
-import { useAuthContext } from '@/context/auth'
+import { useCreateTransaction } from '@/api/hooks/transaction'
+import { TransactionSchema, transactionSchema } from '@/schemas/transaction'
 
 import { Button } from './ui/button'
 import { DatePicker } from './ui/date-picker'
@@ -32,56 +29,10 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form'
 import { Input } from './ui/input'
 
-const transactionSchema = z.object({
-  name: z
-    .string({
-      invalid_type_error: 'Nome inválido',
-      required_error: 'O nome da transação é obrigatório.',
-    })
-    .trim()
-    .min(1, {
-      message: 'O nome da transação é obrigatório.',
-    }),
-  amount: z.number({
-    invalid_type_error: 'Valor inválido',
-    required_error: 'O valor é obrigatório',
-  }),
-  date: z.date({
-    invalid_type_error: 'Data inválida.',
-    required_error: 'A data da transação é obrigatória.',
-  }),
-  type: z.enum(['EARNING', 'EXPENSE', 'INVESTMENT'], {
-    invalid_type_error: 'Tipo de transação inválido.',
-    required_error: 'O tipo da transação é obrigatório.',
-  }),
-})
-
-type TransactionSchema = z.infer<typeof transactionSchema>
-
 const NewTransactionButton = () => {
-  const queryClient = useQueryClient()
-
-  const { user } = useAuthContext()
-
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { mutate: createTransaction, isPending: isCreatingTransaction } = useMutation({
-    mutationKey: ['new-transaction'],
-    mutationFn: async (variables: TransactionSchema) => {
-      const transactionService = new TransactionService()
-      return transactionService.create({
-        name: variables.name,
-        date: variables.date,
-        amount: variables.amount,
-        type: variables.type,
-      })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getUserBalanceQueryKey({ userId: user?.id }),
-      })
-    },
-  })
+  const { mutate: createTransaction, isPending: isCreatingTransaction } = useCreateTransaction()
 
   const form = useForm<TransactionSchema>({
     resolver: zodResolver(transactionSchema),
