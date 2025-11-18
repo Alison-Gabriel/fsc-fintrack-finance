@@ -28,8 +28,8 @@ interface Transaction {
 }
 
 interface GetAllTransactionsInputData {
-  from: string
-  to: string
+  from?: string
+  to?: string
 }
 
 interface TransactionServiceData {
