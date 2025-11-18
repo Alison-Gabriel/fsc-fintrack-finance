@@ -3,10 +3,10 @@ import { toast } from 'sonner'
 
 import { useLogin, useSignup } from '@/api/hooks/user'
 import { UserService } from '@/api/services/user'
+import { LoginSchema } from '@/forms/schemas/login'
+import { SignupSchema } from '@/forms/schemas/signup'
 import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
 import { setLocalStorageTokens } from '@/helpers/set-local-storage-tokens'
-import { LoginSchema } from '@/schemas/login'
-import { SignupSchema } from '@/schemas/signup'
 import { UserData } from '@/types/user'
 import {
   LOCAL_STORAGE_ACCESS_TOKEN_KEY,

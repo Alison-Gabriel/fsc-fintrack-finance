@@ -2,8 +2,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { UserService } from '@/api/services/user'
 import { useAuthContext } from '@/context/auth'
-import { LoginSchema } from '@/schemas/login'
-import { SignupSchema } from '@/schemas/signup'
+import { LoginSchema } from '@/forms/schemas/login'
+import { SignupSchema } from '@/forms/schemas/signup'
 
 interface UseGetUserBalanceProps {
   from?: string | null

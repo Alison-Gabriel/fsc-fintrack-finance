@@ -1,6 +1,6 @@
 import z from 'zod'
 
-export const transactionSchema = z.object({
+export const createTransactionFormSchema = z.object({
   name: z
     .string({
       invalid_type_error: 'Nome inválido',
@@ -24,4 +24,4 @@ export const transactionSchema = z.object({
   }),
 })
 
-export type TransactionSchema = z.infer<typeof transactionSchema>
+export type CreateTransactionFormSchema = z.infer<typeof createTransactionFormSchema>

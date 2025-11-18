@@ -12,16 +12,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useAuthContext } from '@/context/auth'
-import { LoginSchema, loginSchema } from '@/schemas/login'
+import { LoginSchema, loginSchema } from '@/forms/schemas/login'
 
 const LoginPage = () => {
   const { login, user, isTokensBeingValidated } = useAuthContext()
@@ -58,11 +52,7 @@ const LoginPage = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormControl>
-                      <Input
-                        {...field}
-                        className="bg-card"
-                        placeholder="Digite seu e-mail"
-                      />
+                      <Input {...field} className="bg-card" placeholder="Digite seu e-mail" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -75,10 +65,7 @@ const LoginPage = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormControl>
-                      <PasswordInput
-                        {...field}
-                        placeholder="Digite sua senha"
-                      />
+                      <PasswordInput {...field} placeholder="Digite sua senha" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

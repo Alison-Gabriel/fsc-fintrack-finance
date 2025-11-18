@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { useAuthContext } from '@/context/auth'
-import { TransactionSchema } from '@/schemas/transaction'
+import { CreateTransactionFormSchema } from '@/forms/schemas/transaction'
 
 import { TransactionService } from '../services/transaction'
 import { getUserBalanceQueryKey } from './user'
@@ -14,7 +14,7 @@ export const useCreateTransaction = () => {
 
   return useMutation({
     mutationKey: getCreateTransactionMutationKey(),
-    mutationFn: async (variables: TransactionSchema) => {
+    mutationFn: async (variables: CreateTransactionFormSchema) => {
       const transactionService = new TransactionService()
       return transactionService.create(variables)
     },

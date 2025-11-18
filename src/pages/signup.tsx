@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useAuthContext } from '@/context/auth'
-import { SignupSchema, signupSchema } from '@/schemas/signup'
+import { SignupSchema, signupSchema } from '@/forms/schemas/signup'
 
 const SignupPage = () => {
   const { signup, user, isTokensBeingValidated } = useAuthContext()
@@ -65,11 +65,7 @@ const SignupPage = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormControl>
-                      <Input
-                        {...field}
-                        className="bg-card"
-                        placeholder="Digite seu nome"
-                      />
+                      <Input {...field} className="bg-card" placeholder="Digite seu nome" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -82,11 +78,7 @@ const SignupPage = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormControl>
-                      <Input
-                        {...field}
-                        className="bg-card"
-                        placeholder="Digite seu sobrenome"
-                      />
+                      <Input {...field} className="bg-card" placeholder="Digite seu sobrenome" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -99,11 +91,7 @@ const SignupPage = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormControl>
-                      <Input
-                        {...field}
-                        className="bg-card"
-                        placeholder="Digite seu e-mail"
-                      />
+                      <Input {...field} className="bg-card" placeholder="Digite seu e-mail" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -116,10 +104,7 @@ const SignupPage = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormControl>
-                      <PasswordInput
-                        {...field}
-                        placeholder="Digite sua senha"
-                      />
+                      <PasswordInput {...field} placeholder="Digite sua senha" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -132,10 +117,7 @@ const SignupPage = () => {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormControl>
-                      <PasswordInput
-                        {...field}
-                        placeholder="Confirme sua senha"
-                      />
+                      <PasswordInput {...field} placeholder="Confirme sua senha" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

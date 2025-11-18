@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Loader2Icon,
   PiggyBankIcon,
@@ -7,12 +6,10 @@ import {
   TrendingUpIcon,
 } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { NumericFormat } from 'react-number-format'
 import { toast } from 'sonner'
 
-import { useCreateTransaction } from '@/api/hooks/transaction'
-import { TransactionSchema, transactionSchema } from '@/schemas/transaction'
+import { useCreateTransactionForm } from '@/forms/hooks/transaction'
 
 import { Button } from './ui/button'
 import { DatePicker } from './ui/date-picker'
@@ -32,30 +29,15 @@ import { Input } from './ui/input'
 const NewTransactionButton = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { mutate: createTransaction, isPending: isCreatingTransaction } = useCreateTransaction()
-
-  const form = useForm<TransactionSchema>({
-    resolver: zodResolver(transactionSchema),
-    defaultValues: {
-      name: '',
-      amount: 0,
-      date: new Date(),
-      type: 'EARNING',
+  const { form, handleCreateTransaction } = useCreateTransactionForm({
+    onSuccess: () => {
+      toast.success('Transação criada com sucesso!')
+      setIsDialogOpen(false)
     },
-    shouldUnregister: true,
+    onError: () => {
+      toast.error('Erro ao criar transação, tente novamente.')
+    },
   })
-
-  const handleSubmitTransaction = (data: TransactionSchema) => {
-    createTransaction(data, {
-      onSuccess: () => {
-        toast.success('Transação criada com sucesso!')
-        setIsDialogOpen(false)
-      },
-      onError: () => {
-        toast.error('Erro ao criar transação, tente novamente.')
-      },
-    })
-  }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -74,7 +56,7 @@ const NewTransactionButton = () => {
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmitTransaction)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleCreateTransaction)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -180,7 +162,7 @@ const NewTransactionButton = () => {
                   type="reset"
                   variant="secondary"
                   className="flex-1"
-                  disabled={isCreatingTransaction}
+                  disabled={form.formState.isSubmitting}
                 >
                   Cancelar
                 </Button>
@@ -190,9 +172,9 @@ const NewTransactionButton = () => {
                 type="submit"
                 variant="default"
                 className="flex-1"
-                disabled={isCreatingTransaction}
+                disabled={form.formState.isSubmitting}
               >
-                {isCreatingTransaction && <Loader2Icon className="animate-spin" />}
+                {form.formState.isSubmitting && <Loader2Icon className="animate-spin" />}
                 Adicionar
               </Button>
             </DialogFooter>
