@@ -31,12 +31,15 @@ interface TransactionServiceData {
 
 export class TransactionService implements TransactionServiceData {
   async create({ date, name, type, amount }: CreateTransactionInputData) {
-    const { data: createdTransaction } = await protectedApi.post<TransactionApiResponse>('/transactions/me', {
-      name,
-      date,
-      type,
-      amount,
-    })
+    const { data: createdTransaction } = await protectedApi.post<TransactionApiResponse>(
+      '/transactions/me',
+      {
+        name,
+        date,
+        type,
+        amount,
+      }
+    )
 
     return {
       id: createdTransaction.id,

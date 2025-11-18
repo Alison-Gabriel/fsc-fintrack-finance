@@ -1,14 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Loader2Icon, PiggyBankIcon, PlusIcon, TrendingDownIcon, TrendingUpIcon } from 'lucide-react'
+import {
+  Loader2Icon,
+  PiggyBankIcon,
+  PlusIcon,
+  TrendingDownIcon,
+  TrendingUpIcon,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { NumericFormat } from 'react-number-format'
 import { toast } from 'sonner'
 import z from 'zod'
 
+import { getUserBalanceQueryKey } from '@/api/hooks/user'
+import { TransactionService } from '@/api/services/transaction'
 import { useAuthContext } from '@/context/auth'
-import { TransactionService } from '@/services/transaction'
 
 import { Button } from './ui/button'
 import { DatePicker } from './ui/date-picker'
@@ -71,7 +78,7 @@ const NewTransactionButton = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['balance', user?.id],
+        queryKey: getUserBalanceQueryKey({ userId: user?.id }),
       })
     },
   })
@@ -110,7 +117,9 @@ const NewTransactionButton = () => {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold">Adicionar transação</DialogTitle>
-          <DialogDescription className="text-center text-sm">Insira as informações abaixo.</DialogDescription>
+          <DialogDescription className="text-center text-sm">
+            Insira as informações abaixo.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -216,12 +225,22 @@ const NewTransactionButton = () => {
 
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="reset" variant="secondary" className="flex-1" disabled={isCreatingTransaction}>
+                <Button
+                  type="reset"
+                  variant="secondary"
+                  className="flex-1"
+                  disabled={isCreatingTransaction}
+                >
                   Cancelar
                 </Button>
               </DialogClose>
 
-              <Button type="submit" variant="default" className="flex-1" disabled={isCreatingTransaction}>
+              <Button
+                type="submit"
+                variant="default"
+                className="flex-1"
+                disabled={isCreatingTransaction}
+              >
                 {isCreatingTransaction && <Loader2Icon className="animate-spin" />}
                 Adicionar
               </Button>

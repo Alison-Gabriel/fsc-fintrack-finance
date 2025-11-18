@@ -1,53 +1,37 @@
-import { useQuery } from '@tanstack/react-query'
-import {
-  PiggyBankIcon,
-  TrendingDownIcon,
-  TrendingUpIcon,
-  WalletIcon,
-} from 'lucide-react'
+import { PiggyBankIcon, TrendingDownIcon, TrendingUpIcon, WalletIcon } from 'lucide-react'
 import { useSearchParams } from 'react-router'
 
-import { useAuthContext } from '@/context/auth'
-import { UserService } from '@/services/user'
+import { useGetUserBalance } from '@/api/hooks/user'
 
 import BalanceItem from './balance-item'
 
 const Balance = () => {
   const [searchParams] = useSearchParams()
-  const { user } = useAuthContext()
 
   const from = searchParams.get('from')
   const to = searchParams.get('to')
 
-  const { data: balance } = useQuery({
-    queryKey: ['balance', user?.id, from, to],
-    queryFn: async () => {
-      const userService = new UserService()
-      return userService.getBalance({ from, to })
-    },
-    staleTime: 1000 * 60 * 5,
-    enabled: Boolean(from) && Boolean(to) && Boolean(user?.id),
-  })
+  const { data } = useGetUserBalance({ from, to })
 
   return (
     <div className="col-span-2 grid grid-cols-2 gap-6 py-6">
       <BalanceItem
-        amount={Number(balance?.balance)}
+        amount={Number(data?.balance)}
         icon={<WalletIcon className="size-4" />}
         label="Saldo"
       />
       <BalanceItem
-        amount={Number(balance?.earnings)}
+        amount={Number(data?.earnings)}
         icon={<TrendingUpIcon className="size-4 text-primary-green" />}
         label="Ganhos"
       />
       <BalanceItem
-        amount={Number(balance?.expenses)}
+        amount={Number(data?.expenses)}
         icon={<TrendingDownIcon className="size-4 text-primary-red" />}
         label="Gastos"
       />
       <BalanceItem
-        amount={Number(balance?.investments)}
+        amount={Number(data?.investments)}
         icon={<PiggyBankIcon className="size-4 text-primary-blue" />}
         label="Investimentos"
       />
