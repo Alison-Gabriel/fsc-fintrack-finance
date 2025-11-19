@@ -2,7 +2,7 @@ import queryString from 'query-string'
 
 import { protectedApi } from '@/lib/axios'
 
-type TransactionType = 'EARNING' | 'EXPENSE' | 'INVESTMENT'
+export type TransactionType = 'EARNING' | 'EXPENSE' | 'INVESTMENT'
 
 interface CreateTransactionInputData {
   date: Date
@@ -20,7 +20,7 @@ interface TransactionApiResponse {
   amount: string
 }
 
-interface Transaction {
+export interface Transaction {
   id: string
   date: Date
   userId: string
