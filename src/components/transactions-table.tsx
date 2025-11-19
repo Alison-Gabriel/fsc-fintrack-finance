@@ -1,6 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { ExternalLinkIcon } from 'lucide-react'
 import { useSearchParams } from 'react-router'
 
 import { useGetTransactions } from '@/api/hooks/transaction'
@@ -8,6 +9,7 @@ import { Transaction } from '@/api/services/transaction'
 import { formatAmountToBRL } from '@/helpers/format-number-to-brl'
 
 import TransactionTypeBadge from './transaction-type-badge'
+import { Button } from './ui/button'
 import { DataTable } from './ui/data-table'
 
 const columns: ColumnDef<Transaction>[] = [
@@ -39,6 +41,13 @@ const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'actions',
     header: 'Ações',
+    cell: () => {
+      return (
+        <Button variant="ghost" size="icon">
+          <ExternalLinkIcon className="text-muted-foreground" />
+        </Button>
+      )
+    },
   },
 ]
 
