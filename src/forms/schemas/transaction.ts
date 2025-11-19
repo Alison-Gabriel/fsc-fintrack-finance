@@ -25,3 +25,9 @@ export const createTransactionFormSchema = z.object({
 })
 
 export type CreateTransactionFormSchema = z.infer<typeof createTransactionFormSchema>
+
+export const editTransactionFormSchema = createTransactionFormSchema.extend({
+  id: z.string().uuid(),
+})
+
+export type EditTransactionFormSchema = z.infer<typeof editTransactionFormSchema>

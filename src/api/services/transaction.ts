@@ -11,12 +11,8 @@ interface CreateTransactionInputData {
   amount: number
 }
 
-interface UpdateTransactionInputData {
+interface UpdateTransactionInputData extends CreateTransactionInputData {
   id: string
-  date: Date | undefined
-  name: string | undefined
-  type: TransactionType | undefined
-  amount: number | undefined
 }
 
 interface TransactionApiResponse {
