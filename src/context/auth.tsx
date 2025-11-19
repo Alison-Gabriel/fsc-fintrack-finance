@@ -7,18 +7,18 @@ import { LoginFormSchema } from '@/forms/schemas/user'
 import { SignupFormSchema } from '@/forms/schemas/user'
 import { removeLocalStorageTokens } from '@/helpers/remove-local-storage-tokens'
 import { setLocalStorageTokens } from '@/helpers/set-local-storage-tokens'
-import { UserData } from '@/types/user'
+import { User } from '@/types/user'
 import {
   LOCAL_STORAGE_ACCESS_TOKEN_KEY,
   LOCAL_STORAGE_REFRESH_TOKEN_KEY,
 } from '@/variables/local-storage-tokens'
 
 interface AuthContextData {
-  user: UserData | null
+  user: User | null
   isTokensBeingValidated: boolean
   login: (data: LoginFormSchema) => Promise<void>
-  logout: () => void
   signup: (data: SignupFormSchema) => Promise<void>
+  logout: () => void
 }
 
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData)
@@ -28,7 +28,7 @@ interface AuthContextProviderProps {
 }
 
 export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
-  const [user, setUser] = useState<UserData | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isTokensBeingValidated, setIsTokensBeingValidated] = useState(true)
 
   const signupMutation = useSignup()
@@ -45,9 +45,9 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
         if (!accessToken && !refreshToken) return
 
         const userService = new UserService()
-        const user = await userService.me()
+        const { me } = await userService.me()
 
-        setUser(user)
+        setUser(me)
       } catch (error) {
         setUser(null)
         console.log((error as Error).message)
@@ -63,7 +63,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     try {
       const { createdUser } = await signupMutation.mutateAsync(data)
 
-      setUser(createdUser as UserData)
+      setUser(createdUser as User)
       setLocalStorageTokens(createdUser.tokens)
 
       toast.success('Conta criada com sucesso!')
@@ -81,9 +81,9 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
   const login = async (data: LoginFormSchema) => {
     try {
-      const loggedUser = await loginMutation.mutateAsync(data)
+      const { loggedUser } = await loginMutation.mutateAsync(data)
 
-      setUser(loggedUser as UserData)
+      setUser(loggedUser as User)
       setLocalStorageTokens(loggedUser.tokens)
 
       toast.success('Login feito com sucesso!')

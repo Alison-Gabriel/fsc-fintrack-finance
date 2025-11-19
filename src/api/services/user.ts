@@ -22,6 +22,10 @@ interface LoginOutput {
   loggedUser: UserWithTokens
 }
 
+interface MeOutput {
+  me: User
+}
+
 interface GetBalanceInputData {
   from?: string | null
   to?: string | null
@@ -30,8 +34,8 @@ interface GetBalanceInputData {
 interface UserServiceProps {
   signup: (input: SignupInput) => Promise<SignupOutput>
   login: (input: LoginInput) => Promise<LoginOutput>
+  me: () => Promise<MeOutput>
   getBalance: (data: GetBalanceInputData) => Promise<UserBalance>
-  me: () => Promise<User>
 }
 
 export class UserService implements UserServiceProps {
@@ -76,13 +80,15 @@ export class UserService implements UserServiceProps {
   }
 
   async me() {
-    const { data: user } = await protectedApi.get<UserResponse>('/users/me')
+    const { data } = await protectedApi.get<UserResponse>('/users/me')
 
     return {
-      id: user.id,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      email: user.email,
+      me: {
+        id: data.id,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        email: data.email,
+      },
     }
   }
 
