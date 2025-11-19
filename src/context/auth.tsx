@@ -61,7 +61,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
   const signup = async (data: SignupFormSchema) => {
     try {
-      const createdUser = await signupMutation.mutateAsync(data)
+      const { createdUser } = await signupMutation.mutateAsync(data)
 
       setUser(createdUser as UserData)
       setLocalStorageTokens(createdUser.tokens)

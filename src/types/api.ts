@@ -6,7 +6,7 @@ export interface UserResponse {
   password: string
 }
 
-export interface UserResponseWithTokens extends UserResponse {
+export interface UserWithTokensResponse extends UserResponse {
   tokens: {
     accessToken: string
     refreshToken: string

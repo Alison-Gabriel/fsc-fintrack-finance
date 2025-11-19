@@ -1,12 +1,16 @@
 import { protectedApi, publicApi } from '@/lib/axios'
-import { UserResponse, UserResponseWithTokens } from '@/types/api'
+import { UserResponse, UserWithTokensResponse } from '@/types/api'
 import { UserBalanceData, UserData, UserDataWithTokens } from '@/types/user'
 
-interface SignupInputData {
+interface SignupInput {
   firstName: string
   lastName: string
   email: string
   password: string
+}
+
+interface SignupOutput {
+  createdUser: UserDataWithTokens
 }
 
 interface LoginInputData {
@@ -20,15 +24,17 @@ interface GetBalanceInputData {
 }
 
 interface UserServiceProps {
-  signup: (data: SignupInputData) => Promise<UserDataWithTokens>
+  signup: (input: SignupInput) => Promise<SignupOutput>
   login: (data: LoginInputData) => Promise<UserDataWithTokens>
   getBalance: (data: GetBalanceInputData) => Promise<UserBalanceData>
   me: () => Promise<UserData>
 }
 
 export class UserService implements UserServiceProps {
-  async signup({ firstName, lastName, email, password }: SignupInputData) {
-    const { data: createdUser } = await publicApi.post<UserResponseWithTokens>('/users', {
+  async signup(input: SignupInput) {
+    const { firstName, lastName, email, password } = input
+
+    const { data } = await publicApi.post<UserWithTokensResponse>('/users', {
       first_name: firstName,
       last_name: lastName,
       email,
@@ -36,16 +42,18 @@ export class UserService implements UserServiceProps {
     })
 
     return {
-      id: createdUser.id,
-      email: createdUser.email,
-      firstName: createdUser.first_name,
-      lastName: createdUser.last_name,
-      tokens: createdUser.tokens,
+      createdUser: {
+        id: data.id,
+        email: data.email,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        tokens: data.tokens,
+      },
     }
   }
 
   async login({ email, password }: LoginInputData) {
-    const { data: loggedUser } = await publicApi.post<UserResponseWithTokens>('/users/login', {
+    const { data: loggedUser } = await publicApi.post<UserWithTokensResponse>('/users/login', {
       email,
       password,
     })
