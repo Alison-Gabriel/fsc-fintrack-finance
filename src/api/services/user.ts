@@ -26,16 +26,20 @@ interface MeOutput {
   me: User
 }
 
-interface GetBalanceInputData {
+interface GetBalanceInput {
   from?: string | null
   to?: string | null
+}
+
+interface GetBalanceOutput {
+  balance: UserBalance
 }
 
 interface UserServiceProps {
   signup: (input: SignupInput) => Promise<SignupOutput>
   login: (input: LoginInput) => Promise<LoginOutput>
   me: () => Promise<MeOutput>
-  getBalance: (data: GetBalanceInputData) => Promise<UserBalance>
+  getBalance: (input: GetBalanceInput) => Promise<GetBalanceOutput>
 }
 
 export class UserService implements UserServiceProps {
@@ -92,15 +96,28 @@ export class UserService implements UserServiceProps {
     }
   }
 
-  async getBalance({ from, to }: GetBalanceInputData) {
+  async getBalance(input: GetBalanceInput) {
     const queryParams = new URLSearchParams()
+
+    const { from, to } = input
 
     queryParams.set('from', String(from))
     queryParams.set('to', String(to))
 
-    const { data: balance } = await protectedApi.get<UserBalance>(
+    const { data } = await protectedApi.get<UserBalance>(
       `/users/me/balance?${queryParams.toString()}`
     )
-    return balance
+
+    return {
+      balance: {
+        balance: data.balance,
+        earnings: data.earnings,
+        earningsPercentage: data.earningsPercentage,
+        expenses: data.expenses,
+        expensesPercentage: data.expensesPercentage,
+        investments: data.investments,
+        investmentsPercentage: data.investmentsPercentage,
+      },
+    }
   }
 }

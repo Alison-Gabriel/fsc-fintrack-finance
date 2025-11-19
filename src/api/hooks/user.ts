@@ -29,7 +29,9 @@ export const useGetUserBalance = ({ from, to }: UseGetUserBalanceProps) => {
     queryKey: getUserBalanceQueryKey({ from, to, userId: user?.id }),
     queryFn: async () => {
       const userService = new UserService()
-      return userService.getBalance({ from, to })
+      const { balance } = await userService.getBalance({ from, to })
+
+      return balance
     },
     staleTime: 1000 * 60 * 5,
     enabled: Boolean(from) && Boolean(to) && Boolean(user?.id),
