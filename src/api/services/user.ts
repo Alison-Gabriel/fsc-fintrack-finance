@@ -1,6 +1,6 @@
 import { protectedApi, publicApi } from '@/lib/axios'
 import { UserResponse, UserWithTokensResponse } from '@/types/api'
-import { UserBalanceData, UserData, UserDataWithTokens } from '@/types/user'
+import { User, UserBalance, UserWithTokens } from '@/types/user'
 
 interface SignupInput {
   firstName: string
@@ -10,12 +10,16 @@ interface SignupInput {
 }
 
 interface SignupOutput {
-  createdUser: UserDataWithTokens
+  createdUser: UserWithTokens
 }
 
-interface LoginInputData {
+interface LoginInput {
   email: string
   password: string
+}
+
+interface LoginOutput {
+  loggedUser: UserWithTokens
 }
 
 interface GetBalanceInputData {
@@ -25,9 +29,9 @@ interface GetBalanceInputData {
 
 interface UserServiceProps {
   signup: (input: SignupInput) => Promise<SignupOutput>
-  login: (data: LoginInputData) => Promise<UserDataWithTokens>
-  getBalance: (data: GetBalanceInputData) => Promise<UserBalanceData>
-  me: () => Promise<UserData>
+  login: (input: LoginInput) => Promise<LoginOutput>
+  getBalance: (data: GetBalanceInputData) => Promise<UserBalance>
+  me: () => Promise<User>
 }
 
 export class UserService implements UserServiceProps {
@@ -52,18 +56,22 @@ export class UserService implements UserServiceProps {
     }
   }
 
-  async login({ email, password }: LoginInputData) {
-    const { data: loggedUser } = await publicApi.post<UserWithTokensResponse>('/users/login', {
+  async login(input: LoginInput) {
+    const { email, password } = input
+
+    const { data } = await publicApi.post<UserWithTokensResponse>('/users/login', {
       email,
       password,
     })
 
     return {
-      id: loggedUser.id,
-      firstName: loggedUser.first_name,
-      lastName: loggedUser.last_name,
-      email: loggedUser.email,
-      tokens: loggedUser.tokens,
+      loggedUser: {
+        id: data.id,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        email: data.email,
+        tokens: data.tokens,
+      },
     }
   }
 
@@ -84,7 +92,7 @@ export class UserService implements UserServiceProps {
     queryParams.set('from', String(from))
     queryParams.set('to', String(to))
 
-    const { data: balance } = await protectedApi.get<UserBalanceData>(
+    const { data: balance } = await protectedApi.get<UserBalance>(
       `/users/me/balance?${queryParams.toString()}`
     )
     return balance

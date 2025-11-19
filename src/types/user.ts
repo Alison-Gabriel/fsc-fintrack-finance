@@ -1,18 +1,18 @@
-export interface UserData {
+export interface User {
   id: string
   firstName: string
   lastName: string
   email: string
 }
 
-export interface UserDataWithTokens extends UserData {
+export interface UserWithTokens extends User {
   tokens: {
     accessToken: string
     refreshToken: string
   }
 }
 
-export interface UserBalanceData {
+export interface UserBalance {
   earnings: string
   expenses: string
   investments: string
