@@ -11,6 +11,14 @@ interface CreateTransactionInputData {
   amount: number
 }
 
+interface UpdateTransactionInputData {
+  id: string
+  date: Date | undefined
+  name: string | undefined
+  type: TransactionType | undefined
+  amount: number | undefined
+}
+
 interface TransactionApiResponse {
   id: string
   date: Date
@@ -36,6 +44,7 @@ interface GetAllTransactionsInputData {
 
 interface TransactionServiceData {
   create: (data: CreateTransactionInputData) => Promise<Transaction>
+  update: (data: UpdateTransactionInputData) => Promise<Transaction>
   getAll: (data: GetAllTransactionsInputData) => Promise<Transaction[]>
 }
 
@@ -79,5 +88,26 @@ export class TransactionService implements TransactionServiceData {
         }
       })
     )
+  }
+
+  async update({ amount, date, id, name, type }: UpdateTransactionInputData) {
+    const { data: updatedTransaction } = await protectedApi.patch<TransactionApiResponse>(
+      `/transactions/me/${id}`,
+      {
+        name,
+        date,
+        type,
+        amount,
+      }
+    )
+
+    return {
+      id: updatedTransaction.id,
+      name: updatedTransaction.name,
+      date: updatedTransaction.date,
+      userId: updatedTransaction.user_id,
+      amount: updatedTransaction.amount,
+      type: updatedTransaction.type,
+    }
   }
 }
