@@ -11,6 +11,7 @@ import { formatAmountToBRL } from '@/helpers/format-number-to-brl'
 import TransactionTypeBadge from './transaction-type-badge'
 import { Button } from './ui/button'
 import { DataTable } from './ui/data-table'
+import { ScrollArea } from './ui/scroll-area'
 
 const columns: ColumnDef<Transaction>[] = [
   {
@@ -43,7 +44,7 @@ const columns: ColumnDef<Transaction>[] = [
     header: 'Ações',
     cell: () => {
       return (
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="rounded-lg">
           <ExternalLinkIcon className="text-muted-foreground" />
         </Button>
       )
@@ -61,7 +62,15 @@ const TransactionsTable = () => {
 
   if (hasNotTransactions) return null
 
-  return <DataTable columns={columns} data={transactions} />
+  return (
+    <>
+      <h2 className="text-2xl font-bold">Transações</h2>
+
+      <ScrollArea className="h-[450px] max-h-[450px] rounded-lg ring-2 ring-border/50">
+        <DataTable columns={columns} data={transactions} />
+      </ScrollArea>
+    </>
+  )
 }
 
 export default TransactionsTable
